@@ -23,8 +23,8 @@ function App() {
       <h1>Phonebook</h1>
       <ContactForm />
       <SearchBox />
-      <StatusMessage isLoading={isFetching} error={error} />
       <ContactList />
+      <StatusMessage isLoading={isFetching} error={error} />
     </div>
   );
 }
