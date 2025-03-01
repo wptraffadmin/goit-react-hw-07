@@ -1,14 +1,16 @@
-import { Formik, Form, Field, ErrorMessage } from 'formik'; // Імпорт Formik
-import * as Yup from 'yup'; // Імпорт Yup для валідації
-import { useDispatch } from 'react-redux'; // Імпорт хука для екшенів
-import { addContact } from '../../redux/contactsSlice'; // Імпорт екшену
-import styles from './ContactForm.module.css'; // Імпорт стилів
+// components/ContactForm.jsx
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from '../../redux/contactsOps';
+import { selectIsAdding } from '../../redux/contactsSlice'; // Оновлений селектор
+import styles from './ContactForm.module.css';
 
 const ContactForm = () => {
-  const dispatch = useDispatch(); // Отримуємо dispatch
-  const initialValues = { name: '', number: '' }; // Початкові значення форми
+  const dispatch = useDispatch();
+  const isAdding = useSelector(selectIsAdding); // Змінено на selectIsAdding
 
-  const validationSchema = Yup.object({ // Схема валідації
+  const validationSchema = Yup.object({
     name: Yup.string()
       .min(3, 'Must be at least 3 characters')
       .max(50, 'Must be 50 characters or less')
@@ -19,14 +21,14 @@ const ContactForm = () => {
       .required('Required'),
   });
 
-  const handleSubmit = (values, { resetForm }) => { // Обробник сабміту
-    dispatch(addContact({ ...values, id: Date.now().toString() })); // Додаємо контакт із унікальним ID
-    resetForm(); // Очищаємо форму
+  const handleSubmit = (values, { resetForm }) => {
+    dispatch(addContact({ name: values.name, number: values.number }));
+    resetForm();
   };
 
   return (
     <Formik
-      initialValues={initialValues}
+      initialValues={{ name: '', number: '' }}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
@@ -38,10 +40,12 @@ const ContactForm = () => {
         </div>
         <div className={styles.field}>
           <label htmlFor="number" className={styles.label}>Number</label>
-          <Field type="text" id="number" name="number" className={styles.input} />
+          <Field type="tel" id="number" name="number" className={styles.input} />
           <ErrorMessage name="number" component="div" className={styles.error} />
         </div>
-        <button type="submit" className={styles.addContact}>Add contact</button>
+        <button type="submit" className={styles.addContact} disabled={isAdding}>
+          {isAdding ? 'Adding...' : 'Add Contact'}
+        </button>
       </Form>
     </Formik>
   );

@@ -1,19 +1,73 @@
-import { createSlice } from '@reduxjs/toolkit'; // Імпорт для створення слайсу
+// redux/contactsSlice.js
+import { createSlice, createSelector } from '@reduxjs/toolkit';
+import { fetchContacts, addContact, deleteContact } from './contactsOps';
 
 const contactsSlice = createSlice({
-  name: 'contacts', // Назва слайсу
-  initialState: { // Початковий стан
-    items: [], // Масив контактів
+  name: 'contacts',
+  initialState: {
+    items: [],
+    isFetching: false,
+    isAdding: false,
+    deletingIds: [], // Масив ID контактів, що видаляються
+    error: null,
   },
-  reducers: { // Функції для зміни стану
-    addContact: (state, action) => { // Додавання контакту
-      state.items.push(action.payload);
-    },
-    deleteContact: (state, action) => { // Видалення контакту
-      state.items = state.items.filter(contact => contact.id !== action.payload);
-    },
+  extraReducers: builder => {
+    builder
+      // fetchContacts
+      .addCase(fetchContacts.pending, state => {
+        state.isFetching = true;
+        state.error = null;
+      })
+      .addCase(fetchContacts.fulfilled, (state, action) => {
+        state.items = action.payload;
+        state.isFetching = false;
+      })
+      .addCase(fetchContacts.rejected, (state, action) => {
+        state.isFetching = false;
+        state.error = action.payload;
+      })
+      // addContact
+      .addCase(addContact.pending, state => {
+        state.isAdding = true;
+        state.error = null;
+      })
+      .addCase(addContact.fulfilled, (state, action) => {
+        state.items.push(action.payload);
+        state.isAdding = false;
+      })
+      .addCase(addContact.rejected, (state, action) => {
+        state.isAdding = false;
+        state.error = action.payload;
+      })
+      // deleteContact
+      .addCase(deleteContact.pending, (state, action) => {
+        state.deletingIds.push(action.meta.arg); // Додаємо ID контакту до deletingIds
+        state.error = null;
+      })
+      .addCase(deleteContact.fulfilled, (state, action) => {
+        state.items = state.items.filter(item => item.id !== action.payload);
+        state.deletingIds = state.deletingIds.filter(id => id !== action.payload); // Прибираємо ID
+      })
+      .addCase(deleteContact.rejected, (state, action) => {
+        state.deletingIds = state.deletingIds.filter(id => id !== action.meta.arg); // Прибираємо ID при помилці
+        state.error = action.payload;
+      });
   },
 });
 
-export const { addContact, deleteContact } = contactsSlice.actions; // Експорт екшенів
-export default contactsSlice.reducer; // Експорт редюсера
+// Оновлені селектори
+export const selectContacts = state => state.contacts.items;
+export const selectIsFetching = state => state.contacts.isFetching;
+export const selectIsAdding = state => state.contacts.isAdding;
+export const selectDeletingIds = state => state.contacts.deletingIds; // Новий селектор
+export const selectError = state => state.contacts.error;
+
+export const selectFilteredContacts = createSelector(
+  [selectContacts, state => state.filters.name],
+  (contacts, filter) =>
+    contacts.filter(contact =>
+      contact.name.toLowerCase().includes(filter.toLowerCase())
+    )
+);
+
+export default contactsSlice.reducer;

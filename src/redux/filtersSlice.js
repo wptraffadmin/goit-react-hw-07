@@ -6,11 +6,14 @@ const filtersSlice = createSlice({
     name: '', // Рядок для фільтрації
   },
   reducers: { // Функції для зміни стану
-    changeFilter: (state, action) => { // Зміна значення фільтру
+    setFilter(state, action) {
       state.name = action.payload;
     },
   },
 });
 
-export const { changeFilter } = filtersSlice.actions; // Експорт екшену
-export default filtersSlice.reducer; // Експорт редюсера
+// Екшен для зміни фільтру
+export const { setFilter } = filtersSlice.actions;
+
+// Селектор
+export const selectNameFilter = state => state.filters.name;export default filtersSlice.reducer; // Експорт редюсера

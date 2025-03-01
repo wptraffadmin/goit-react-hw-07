@@ -1,23 +1,25 @@
-import { useSelector, useDispatch } from 'react-redux'; // Імпорт хуків Redux
-import { changeFilter } from '../../redux/filtersSlice'; // Імпорт екшену
-import styles from './SearchBox.module.css'; // Імпорт стилів
+// components/SearchBox.jsx
+import { useSelector, useDispatch } from 'react-redux';
+import { setFilter } from '../../redux/filtersSlice'; // Оновлений екшен
+import { selectNameFilter } from '../../redux/filtersSlice'; // Селектор для фільтру
+import styles from './SearchBox.module.css';
 
 const SearchBox = () => {
-  const filter = useSelector(state => state.filters.name); // Отримуємо значення фільтру
-  const dispatch = useDispatch(); // Отримуємо dispatch
+  const filter = useSelector(selectNameFilter); // Отримуємо значення фільтру
+  const dispatch = useDispatch();
 
-  const handleChange = (e) => { // Обробник зміни значення
-    dispatch(changeFilter(e.target.value)); // Викликаємо екшен
+  const handleChange = e => {
+    dispatch(setFilter(e.target.value)); // Викликаємо оновлений екшен
   };
 
   return (
     <div className={styles.searchBox}>
-      <label htmlFor="search" className={styles.label}>Find contacts by name</label> {/* Змінив h2 на label */}
+      <label htmlFor="search" className={styles.label}>Find contacts by name</label>
       <input
         type="text"
         id="search"
-        value={filter} // Значення з Redux
-        onChange={handleChange} // Локальний обробник
+        value={filter}
+        onChange={handleChange}
         className={styles.input}
       />
     </div>

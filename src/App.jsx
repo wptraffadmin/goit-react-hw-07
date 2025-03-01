@@ -1,16 +1,30 @@
-import ContactForm from './components/ContactForm/ContactForm'; // Імпорт форми
-import ContactList from './components/ContactList/ContactList'; // Імпорт списку
-import SearchBox from './components/SearchBox/SearchBox'; // Імпорт пошуку
+// App.jsx
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchContacts } from './redux/contactsOps';
+import { selectIsFetching, selectError } from './redux/contactsSlice';
+import ContactForm from './components/ContactForm/ContactForm';
+import ContactList from './components/ContactList/ContactList';
+import SearchBox from './components/SearchBox/SearchBox';
+import StatusMessage from './components/StatusMessage/StatusMessage';
 import './App.css';
 
-
 function App() {
+  const dispatch = useDispatch();
+  const isFetching = useSelector(selectIsFetching);
+  const error = useSelector(selectError);
+
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
+
   return (
-    <div id="root">
+    <div>
       <h1>Phonebook</h1>
-      <ContactForm /> {/* Без пропсів */}
-      <SearchBox /> {/* Без пропсів */}
-      <ContactList /> {/* Без пропсів */}
+      <ContactForm />
+      <SearchBox />
+      <StatusMessage isLoading={isFetching} error={error} />
+      <ContactList />
     </div>
   );
 }
