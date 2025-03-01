@@ -10,7 +10,7 @@ const ContactList = () => {
   );
 
   return (
-    <div>
+    <div className={styles.container}>
       <h2>Contacts</h2>
       <ul className={styles.list}>
         {filteredContacts.map(contact => (
